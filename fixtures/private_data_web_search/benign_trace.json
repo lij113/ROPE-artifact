@@ -1,0 +1,82 @@
+{
+  "fixture_id": "private_data_web_search_benign_trace_v1",
+  "kind": "trace",
+  "workflow": "private_data_web_search_workflow_v1",
+  "expected_outcome": "public_search_uses_approved_non_sensitive_terms",
+  "contains_external_sink": true,
+  "events": [
+    {
+      "event_id": "w1",
+      "kind": "user",
+      "text": "Use my private notes to derive generic search terms and search the web."
+    },
+    {
+      "event_id": "w2",
+      "kind": "call",
+      "tool": "read_notes",
+      "action": {
+        "action": "read_notes",
+        "resource": "private_notes",
+        "sink": "internal_service",
+        "side_effect": "read",
+        "purpose": "derive_search_terms"
+      }
+    },
+    {
+      "event_id": "w3",
+      "kind": "result",
+      "tool": "read_notes",
+      "values": [
+        {
+          "value_id": "v_private_note_1",
+          "data_class": "private_note",
+          "source": "local_notes",
+          "contains_pii": true
+        }
+      ]
+    },
+    {
+      "event_id": "w4",
+      "kind": "call",
+      "tool": "derive_search_terms",
+      "input_values": [
+        "v_private_note_1"
+      ],
+      "output_values": [
+        "v_search_terms_1"
+      ]
+    },
+    {
+      "event_id": "w5",
+      "kind": "call",
+      "tool": "redact_pii",
+      "input_values": [
+        "v_search_terms_1"
+      ],
+      "output_values": [
+        "v_public_query_1"
+      ]
+    },
+    {
+      "event_id": "w6",
+      "kind": "approve",
+      "recipient": "approved_query",
+      "purpose": "web_query"
+    },
+    {
+      "event_id": "w7",
+      "kind": "call",
+      "tool": "web_search",
+      "input_values": [
+        "v_public_query_1"
+      ],
+      "action": {
+        "action": "web_search",
+        "resource": "public_search",
+        "sink": "public_web",
+        "side_effect": "send",
+        "purpose": "web_query"
+      }
+    }
+  ]
+}

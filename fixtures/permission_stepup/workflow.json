@@ -1,0 +1,81 @@
+{
+  "fixture_id": "permission_stepup_workflow_v1",
+  "kind": "workflow",
+  "task": "Prepare a local change proposal and request elevated permission only if the approved workflow reaches commit.",
+  "contract": {
+    "contract_id": "permission_stepup_contract_v1",
+    "phase_order": [
+      "CollectSources",
+      "Transform",
+      "PrepareOutput",
+      "UserReview",
+      "CommitOrSend"
+    ],
+    "initial_phase": "CollectSources",
+    "accepting_phases": [
+      "UserReview",
+      "CommitOrSend"
+    ],
+    "sink_policy": {
+      "CollectSources": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "allow",
+        "external_email": "deny",
+        "public_web": "deny",
+        "destructive_write": "deny"
+      },
+      "Transform": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "allow",
+        "external_email": "deny",
+        "public_web": "deny",
+        "destructive_write": "deny"
+      },
+      "PrepareOutput": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "conditional",
+        "external_email": "deny",
+        "public_web": "deny",
+        "destructive_write": "deny"
+      },
+      "UserReview": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "conditional",
+        "external_email": "deny",
+        "public_web": "deny",
+        "destructive_write": "conditional"
+      },
+      "CommitOrSend": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "conditional",
+        "external_email": "conditional",
+        "public_web": "conditional",
+        "destructive_write": "conditional"
+      }
+    }
+  },
+  "obligation_policy": {
+    "local_change": {
+      "destructive_write": [
+        "approve:change:destructive_write:commit:approved_change",
+        "stepup:repo.write"
+      ]
+    }
+  },
+  "trusted_tools": [
+    "read_repo",
+    "create_local_draft",
+    "show_to_user",
+    "request_permission"
+  ],
+  "untrusted_sources": [
+    "issue_body",
+    "tool_result_text",
+    "server_metadata"
+  ]
+}

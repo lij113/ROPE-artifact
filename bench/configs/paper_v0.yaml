@@ -1,0 +1,80 @@
+version: paper_v0
+date: 2026-05-25
+scope: pre_phase5_hardening
+random_seed: 0
+
+semantics:
+  admit_judgment: LocalValid and ObligationSafe and NecessaryPerms and FutureAccept
+  future_search_bound: 4
+  sink_classes:
+    - local_display
+    - local_file
+    - internal_service
+    - same_org_message
+    - external_email
+    - public_web
+    - code_execution
+    - payment
+    - destructive_write
+  obligations:
+    - top
+    - redact
+    - summarize
+    - approve
+    - localize
+    - stepup
+    - bind
+    - audit
+
+evaluation:
+  workflows:
+    - email_draft
+    - private_data_web_search
+    - permission_stepup
+  attack_templates: fixtures/attack_templates.json
+  baselines:
+    - scope-only
+    - approval-only
+    - taint-only
+    - contract-only
+    - PACT-style
+    - ROPE-no-provenance
+    - ROPE-no-obligation
+    - ROPE-no-future
+    - ROPE-no-repair
+    - ROPE-no-certificate
+    - ROPE-full
+  metrics:
+    - attack_success_rate
+    - unauthorized_sink_rate
+    - unauthorized_write_rate
+    - permission_overstep_rate
+    - benign_task_success
+    - safe_completion_under_attack
+    - overblocking_rate
+    - repair_success_rate
+    - confirmation_burden
+    - certificate_replay_success
+    - p50_latency_ms
+    - p95_latency_ms
+
+repair:
+  search_space:
+    - redact
+    - summarize
+    - downscope_args
+    - switch_to_local_draft
+    - ask_confirm
+  cost_weights:
+    security: 1.0
+    utility: 1.0
+    interaction: 1.0
+  bounded_minimal_scope: declared_search_space_only
+
+trust_boundary:
+  mcp_meta_role: transport_only
+  server_provided_tool_profiles: hints_only
+  trusted_profile_sources:
+    - host_policy
+    - audited
+    - signed_third_party

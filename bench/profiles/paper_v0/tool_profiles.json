@@ -1,0 +1,102 @@
+{
+  "version": "paper_v0",
+  "profile_schema": "docs/EFFECT_PROFILE_SCHEMA.md",
+  "profiles": [
+    {
+      "tool": "read_email",
+      "source": "host_policy",
+      "trust": "org_policy",
+      "action": "read_email",
+      "resource": "internal_mailbox",
+      "sink": "internal_service",
+      "side_effect": "read",
+      "purpose": "summarize_customer_email",
+      "discharges": [],
+      "annotation_fields": 8
+    },
+    {
+      "tool": "summarize_email",
+      "source": "audited",
+      "trust": "audited",
+      "action": "summarize_email",
+      "resource": "host_summarizer",
+      "sink": "local_file",
+      "side_effect": "transform",
+      "purpose": "summarize_customer_email",
+      "discharges": ["summarize(granularity=short)"],
+      "annotation_fields": 9
+    },
+    {
+      "tool": "redact_pii",
+      "source": "audited",
+      "trust": "audited",
+      "action": "redact_pii",
+      "resource": "host_redactor",
+      "sink": "local_file",
+      "side_effect": "transform",
+      "purpose": "sanitize_email",
+      "discharges": ["redact(klass=PII)"],
+      "annotation_fields": 9
+    },
+    {
+      "tool": "create_local_draft",
+      "source": "host_policy",
+      "trust": "org_policy",
+      "action": "create_draft",
+      "resource": "local_draft",
+      "sink": "local_file",
+      "side_effect": "write",
+      "purpose": "customer_reply_draft",
+      "discharges": [],
+      "annotation_fields": 8
+    },
+    {
+      "tool": "show_to_user",
+      "source": "host_policy",
+      "trust": "org_policy",
+      "action": "display_draft",
+      "resource": "host_ui",
+      "sink": "local_display",
+      "side_effect": "none",
+      "purpose": "user_review",
+      "discharges": [],
+      "annotation_fields": 8
+    },
+    {
+      "tool": "send_email",
+      "source": "host_policy",
+      "trust": "org_policy",
+      "action": "send_email",
+      "resource": "external_email",
+      "sink": "external_email",
+      "side_effect": "send",
+      "purpose": "customer_reply",
+      "discharges": [],
+      "annotation_fields": 8
+    },
+    {
+      "tool": "web_search",
+      "source": "host_policy",
+      "trust": "org_policy",
+      "action": "web_search",
+      "resource": "public_search",
+      "sink": "public_web",
+      "side_effect": "send",
+      "purpose": "web_query",
+      "discharges": [],
+      "annotation_fields": 8
+    },
+    {
+      "tool": "request_permission",
+      "source": "host_policy",
+      "trust": "org_policy",
+      "action": "stepup",
+      "resource": "permission_manager",
+      "sink": "internal_service",
+      "side_effect": "stepup",
+      "purpose": "permission_stepup",
+      "discharges": ["audit(reason=stepup_reason)"],
+      "annotation_fields": 9
+    }
+  ]
+}

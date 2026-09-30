@@ -1,0 +1,84 @@
+{
+  "fixture_id": "email_draft_workflow_v1",
+  "kind": "workflow",
+  "task": "Summarize recent customer emails and draft a reply for user confirmation.",
+  "contract": {
+    "contract_id": "email_draft_contract_v1",
+    "phase_order": [
+      "CollectSources",
+      "Transform",
+      "PrepareOutput",
+      "UserReview",
+      "CommitOrSend"
+    ],
+    "initial_phase": "CollectSources",
+    "accepting_phases": [
+      "UserReview",
+      "CommitOrSend"
+    ],
+    "sink_policy": {
+      "CollectSources": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "allow",
+        "external_email": "deny",
+        "public_web": "deny"
+      },
+      "Transform": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "allow",
+        "external_email": "deny",
+        "public_web": "deny"
+      },
+      "PrepareOutput": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "conditional",
+        "external_email": "deny",
+        "public_web": "deny"
+      },
+      "UserReview": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "conditional",
+        "external_email": "conditional",
+        "public_web": "deny"
+      },
+      "CommitOrSend": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "conditional",
+        "external_email": "conditional",
+        "public_web": "conditional"
+      }
+    }
+  },
+  "obligation_policy": {
+    "private_email_body": {
+      "external_email": [
+        "redact:PII",
+        "summarize:short",
+        "approve:email_body:external_email:customer_reply:approved_recipient"
+      ],
+      "public_web": [
+        "redact:PII",
+        "summarize:search_terms",
+        "approve:email_body:public_web:web_query:approved_query"
+      ]
+    }
+  },
+  "trusted_tools": [
+    "read_email",
+    "summarize_email",
+    "redact_pii",
+    "create_local_draft",
+    "show_to_user"
+  ],
+  "untrusted_sources": [
+    "email_body",
+    "server_metadata",
+    "tool_result_text"
+  ]
+}
+

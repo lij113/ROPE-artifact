@@ -1,0 +1,77 @@
+{
+  "fixture_id": "private_data_web_search_workflow_v1",
+  "kind": "workflow",
+  "task": "Derive non-sensitive search terms from private notes and run a public web search.",
+  "contract": {
+    "contract_id": "private_data_web_search_contract_v1",
+    "phase_order": [
+      "CollectSources",
+      "Transform",
+      "PrepareOutput",
+      "UserReview",
+      "CommitOrSend"
+    ],
+    "initial_phase": "CollectSources",
+    "accepting_phases": [
+      "PrepareOutput",
+      "UserReview"
+    ],
+    "sink_policy": {
+      "CollectSources": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "allow",
+        "external_email": "deny",
+        "public_web": "deny"
+      },
+      "Transform": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "allow",
+        "external_email": "deny",
+        "public_web": "deny"
+      },
+      "PrepareOutput": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "conditional",
+        "external_email": "deny",
+        "public_web": "conditional"
+      },
+      "UserReview": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "conditional",
+        "external_email": "deny",
+        "public_web": "conditional"
+      },
+      "CommitOrSend": {
+        "local_display": "allow",
+        "local_file": "allow",
+        "internal_service": "conditional",
+        "external_email": "conditional",
+        "public_web": "conditional"
+      }
+    }
+  },
+  "obligation_policy": {
+    "private_note": {
+      "public_web": [
+        "redact:PII",
+        "summarize:search_terms",
+        "approve:note:public_web:web_query:approved_query"
+      ]
+    }
+  },
+  "trusted_tools": [
+    "read_notes",
+    "derive_search_terms",
+    "redact_pii",
+    "web_search"
+  ],
+  "untrusted_sources": [
+    "note_body",
+    "tool_result_text",
+    "server_metadata"
+  ]
+}
